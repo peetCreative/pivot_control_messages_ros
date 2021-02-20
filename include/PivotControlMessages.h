@@ -3,14 +3,14 @@
 
 namespace pivot_control_messages
 {
-    struct {
+    typedef struct {
         float yaw = 0;
         float pitch = 0;
         float roll = 0;
         float transZ = 0;
     } DOFPose;
 
-    struct {
+    typedef struct {
         float yawMax, yawMin;
         float pitchMax, pitchMin;
         float rollMax, rollMin;
