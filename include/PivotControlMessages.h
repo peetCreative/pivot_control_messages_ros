@@ -32,6 +32,21 @@ namespace pivot_control_messages
         float transZMax = 0;
         float transZMin = 0;
     };
+
+    class PivotController {
+    protected:
+        bool mDofPoseReady = false;
+        bool mDofBoundariesReady = false;
+    public:
+        virtual bool setTargetDOFPose(
+                DOFPose) = 0;
+        virtual bool getCurrentDOFPose(
+                DOFPose &laparoscopeDofPose) = 0;
+        virtual bool getDOFBoundaries(
+                DOFBoundaries &laparoscopeDofBoundaries) = 0;
+        bool isReady() {
+            return mDofBoundariesReady && mDofPoseReady;};
+    };
 }
 
 #endif //PIVOT_CONTROL_MESSAGES_H
