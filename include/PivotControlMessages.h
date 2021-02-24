@@ -20,6 +20,13 @@ namespace pivot_control_messages
                << " transZ" << transZ;
             return ss.str();
         }
+        bool operator==(const DOFPose& other)
+        {
+            return pitch == other.pitch &&
+                yaw == other.yaw &&
+                roll == other.roll &&
+                transZ == other.transZ;
+        }
     };
     struct DOFBoundaries
     {
