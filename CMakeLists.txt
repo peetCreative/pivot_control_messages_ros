@@ -48,3 +48,7 @@ target_link_libraries( ${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${franka_pivot_control_LIBRARIES}
         pivot_control_messages)
+
+catkin_install_python(PROGRAMS scripts/keyboardController.py
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
