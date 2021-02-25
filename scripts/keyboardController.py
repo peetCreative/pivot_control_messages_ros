@@ -18,16 +18,16 @@ class KeyboardDOFController:
 
         # Publisher which will publish to the topic '/turtle1/cmd_vel'.
         self.pose_publisher = rospy.Publisher(
-            "{}/target/laparoscope_dof_pose".format(ns),
+            "{}target/laparoscope_dof_pose".format(ns),
             LaparoscopeDOFPose, queue_size=10)
 
         # A subscriber to the topic '/turtle1/pose'. self.update_pose is called
         # when a message of type Pose is received.
         self.boundaries_subscriber = rospy.Subscriber(
-            "{}/laparoscope_dof_boundaries".format(ns),
+            "{}laparoscope_dof_boundaries".format(ns),
             LaparoscopeDOFBoundaries, self.update_boundaries)
         self.pose_subscriber = rospy.Subscriber(
-            "{}/current/laparoscope_dof_pose".format(ns),
+            "{}current/laparoscope_dof_pose".format(ns),
             LaparoscopeDOFPose, self.update_pose)
 
         self.pose = LaparoscopeDOFPose()
@@ -175,7 +175,7 @@ class KeyboardDOFController:
 
 if __name__ == '__main__':
 
-    namespace = '/gazebo/laparoscope/joint_controller'
+    namespace = ''
     parser = argparse.ArgumentParser(description='Node to which shows field where you can control DOFPose.')
     parser.add_argument('--namespace', help='topic name to publish to', default=namespace)
     args = parser.parse_args()
