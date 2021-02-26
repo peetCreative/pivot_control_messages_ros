@@ -133,9 +133,17 @@ class KeyboardDOFController:
         boundtextRect.centerx = self.screen.get_rect().centerx
         boundtextRect.centery = self.screen.get_rect().centery + 40
 
+        str = "trans_z_bound:{:.2f},{:.2f}".format(
+            self.boundaries.trans_z_min, self.boundaries.trans_z_max)
+        bound1text = self.font.render(str, True, (255, 255, 255), (159, 182, 205))
+        bound1textRect = boundtext.get_rect()
+        bound1textRect.centerx = self.screen.get_rect().centerx
+        bound1textRect.centery = self.screen.get_rect().centery + 60
+
         self.screen.blit(dirtext, dirtextRect)
         self.screen.blit(posetext, posetextRect)
         self.screen.blit(boundtext, boundtextRect)
+        self.screen.blit(bound1text, bound1textRect)
         pygame.display.update()
 
     def start(self):
