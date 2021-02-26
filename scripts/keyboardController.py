@@ -11,23 +11,23 @@ from pivot_control_messages_ros.msg import LaparoscopeDOFBoundaries
 
 class KeyboardDOFController:
 
-    def __init__(self, ns):
+    def __init__(self):
         # Creates a node with name 'turtlebot_controller' and make sure it is a
         # unique node (using anonymous=True).
         rospy.init_node('keyboard_dof_controller', anonymous=True)
 
         # Publisher which will publish to the topic '/turtle1/cmd_vel'.
         self.pose_publisher = rospy.Publisher(
-            "{}target/laparoscope_dof_pose".format(ns),
+            "target/laparoscope_dof_pose",
             LaparoscopeDOFPose, queue_size=10)
 
         # A subscriber to the topic '/turtle1/pose'. self.update_pose is called
         # when a message of type Pose is received.
         self.boundaries_subscriber = rospy.Subscriber(
-            "{}laparoscope_dof_boundaries".format(ns),
+            "laparoscope_dof_boundaries",
             LaparoscopeDOFBoundaries, self.update_boundaries)
         self.pose_subscriber = rospy.Subscriber(
-            "{}current/laparoscope_dof_pose".format(ns),
+            "current/laparoscope_dof_pose",
             LaparoscopeDOFPose, self.update_pose)
 
         self.pose = LaparoscopeDOFPose()
@@ -174,13 +174,8 @@ class KeyboardDOFController:
 
 
 if __name__ == '__main__':
-
-    namespace = ''
-    parser = argparse.ArgumentParser(description='Node to which shows field where you can control DOFPose.')
-    parser.add_argument('--namespace', help='topic name to publish to', default=namespace)
-    args = parser.parse_args()
     try:
-        x = KeyboardDOFController(args.namespace)
+        x = KeyboardDOFController()
         x.start()
     except rospy.ROSInterruptException:
         pass
