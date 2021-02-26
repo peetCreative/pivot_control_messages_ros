@@ -51,12 +51,12 @@ class KeyboardDOFController:
         self.font = pygame.font.Font(None, 30)
         self.direction = ""
 
-        #5mm every step
+        # 5mm every step
         self.step_distance = 0.005
-        #the laparoscope is 30° tilted
+        # the laparoscope is 30° tilted
         self.camera_tilt = 0.52359
         self.add_camera_tilt = False
-        #focus distance in 10 cm
+        # focus distance in 10 cm
         self.focus_distance = 0.15
 
     def update_boundaries(self, boundaries):
@@ -86,7 +86,7 @@ class KeyboardDOFController:
             ))
         step_pitch = self.step_distance / axis_length
         step_yaw = self.step_distance / axis_length
-        #apply step direction
+        # apply step direction
         if self.direction == "up":
             pose.pitch = pose.pitch + step_pitch
         if self.direction == "down":
@@ -96,11 +96,11 @@ class KeyboardDOFController:
         if self.direction == "right":
             pose.yaw = pose.yaw - step_yaw
         if self.direction == "in":
-            #TODO: with pitching more distance will be covered
+            # TODO: with pitching more distance will be covered
             pose.trans_z = pose.trans_z + self.step_distance
         if self.direction == "out":
             pose.trans_z = pose.trans_z - self.step_distance
-        #check boundaries
+        # check boundaries
         if (self.boundaries.yaw_min <= pose.yaw <= self.boundaries.yaw_max and
                 self.boundaries.pitch_min <= pose.pitch <= self.boundaries.pitch_max and
                 self.boundaries.roll_min <= pose.roll <= self.boundaries.roll_max and
@@ -111,7 +111,8 @@ class KeyboardDOFController:
                     self.focus_distance
                 ))
                 pose.pitch = pose.pitch - (trans_pitch_new - trans_pitch)
-            tilt_pitch = pose.pitch - (self.camera_tilt if self.add_camera_tilt else 0)
+            tilt_pitch = pose.pitch - (
+                self.camera_tilt if self.add_camera_tilt else 0)
             vec1 = np.array([0, math.cos(tilt_pitch), math.sin(tilt_pitch)])
             vec2 = np.array([math.sin(pose.yaw) * math.sin(tilt_pitch),
                              math.cos(tilt_pitch),
@@ -124,7 +125,8 @@ class KeyboardDOFController:
             self.pose_publisher.publish(pose)
 
     def display(self):
-        dirtext = self.font.render(self.direction, True, (255, 255, 255), (159, 182, 205))
+        dirtext = self.font.render(self.direction, True, (255, 255, 255),
+                                   (159, 182, 205))
         dirtextRect = dirtext.get_rect()
         dirtextRect.centerx = self.screen.get_rect().centerx
         dirtextRect.centery = self.screen.get_rect().centery
@@ -140,14 +142,16 @@ class KeyboardDOFController:
             self.boundaries.pitch_min, self.boundaries.pitch_max,
             self.boundaries.yaw_min, self.boundaries.yaw_max,
             self.boundaries.roll_min, self.boundaries.roll_max)
-        boundtext = self.font.render(str, True, (255, 255, 255), (159, 182, 205))
+        boundtext = self.font.render(str, True, (255, 255, 255),
+                                     (159, 182, 205))
         boundtextRect = boundtext.get_rect()
         boundtextRect.centerx = self.screen.get_rect().centerx
         boundtextRect.centery = self.screen.get_rect().centery + 40
 
         str = "trans_z_bound:{:.2f},{:.2f}".format(
             self.boundaries.trans_z_min, self.boundaries.trans_z_max)
-        bound1text = self.font.render(str, True, (255, 255, 255), (159, 182, 205))
+        bound1text = self.font.render(str, True, (255, 255, 255),
+                                      (159, 182, 205))
         bound1textRect = boundtext.get_rect()
         bound1textRect.centerx = self.screen.get_rect().centerx
         bound1textRect.centery = self.screen.get_rect().centery + 60
