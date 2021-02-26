@@ -90,9 +90,10 @@ class KeyboardDOFController:
         if self.direction == "out":
             pose.trans_z = pose.trans_z - self.step_distance
         #check boundaries
-        if (self.boundaries.yaw_min < pose.yaw < self.boundaries.yaw_max and
-                self.boundaries.pitch_min < pose.pitch < self.boundaries.pitch_max and
-                self.boundaries.trans_z_min < pose.trans_z < self.boundaries.trans_z_max):
+        if (self.boundaries.yaw_min <= pose.yaw <= self.boundaries.yaw_max and
+                self.boundaries.pitch_min <= pose.pitch <= self.boundaries.pitch_max and
+                self.boundaries.roll_min <= pose.roll <= self.boundaries.roll_max and
+                self.boundaries.trans_z_min <= pose.trans_z <= self.boundaries.trans_z_max):
             if self.pose.trans_z != pose.trans_z:
                 trans_pitch_new = math.asin(
                     (math.sin(math.pi - self.camera_tilt) * pose.trans_z)/
