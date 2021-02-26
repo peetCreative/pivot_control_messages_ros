@@ -9,6 +9,14 @@ from pivot_control_messages_ros.msg import LaparoscopeDOFPose
 from pivot_control_messages_ros.msg import LaparoscopeDOFBoundaries
 
 
+def limitToOne(a):
+    if a <= -1:
+        a = -1
+    if a >= 1:
+        a = 1
+    return a
+
+
 class KeyboardDOFController:
 
     def __init__(self):
@@ -63,16 +71,19 @@ class KeyboardDOFController:
         pose.pitch = self.pose.pitch
         pose.roll = self.pose.roll
         pose.trans_z = self.pose.trans_z
-        #calculate the pitch allready caused by trans_z
-        trans_pitch = math.asin(
-            (math.sin(math.pi - self.camera_tilt) * pose.trans_z)/
-            self.focus_distance)
+        # calculate the pitch allready caused by trans_z
+        trans_pitch = math.asin(limitToOne(
+            (math.sin(
+                math.pi - self.camera_tilt) * pose.trans_z) / self.focus_distance
+        ))
         axis_length = self.focus_distance
         # the point which should be equally fast moving
         if pose.trans_z != 0:
-            axis_length = math.asin(
-                (math.sin(math.pi - self.camera_tilt) * pose.trans_z)/
-                math.sin(trans_pitch))
+            axis_length = math.asin(limitToOne(
+                (math.sin(
+                    math.pi - self.camera_tilt) * pose.trans_z) / math.sin(
+                    trans_pitch)
+            ))
         step_pitch = self.step_distance / axis_length
         step_yaw = self.step_distance / axis_length
         #apply step direction
@@ -95,9 +106,10 @@ class KeyboardDOFController:
                 self.boundaries.roll_min <= pose.roll <= self.boundaries.roll_max and
                 self.boundaries.trans_z_min <= pose.trans_z <= self.boundaries.trans_z_max):
             if self.pose.trans_z != pose.trans_z:
-                trans_pitch_new = math.asin(
-                    (math.sin(math.pi - self.camera_tilt) * pose.trans_z)/
-                    self.focus_distance)
+                trans_pitch_new = math.asin(limitToOne(
+                    (math.sin(math.pi - self.camera_tilt) * pose.trans_z) /
+                    self.focus_distance
+                ))
                 pose.pitch = pose.pitch - (trans_pitch_new - trans_pitch)
             tilt_pitch = pose.pitch - (self.camera_tilt if self.add_camera_tilt else 0)
             vec1 = np.array([0, math.cos(tilt_pitch), math.sin(tilt_pitch)])
