@@ -164,6 +164,8 @@ class KeyboardDOFController:
             self.display()
             pygame.event.pump()
             keys = pygame.key.get_pressed()
+            if rospy.is_shutdown():
+                done = True
             if keys[K_ESCAPE]:
                 done = True
             if keys[K_w]:
