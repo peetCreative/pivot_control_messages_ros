@@ -2,6 +2,7 @@
 #define PIVOT_CONTROL_MESSAGES_H
 
 #include <sstream>
+#include <math.h>
 
 namespace pivot_control_messages
 {
@@ -23,9 +24,23 @@ namespace pivot_control_messages
         bool operator==(const DOFPose& other)
         {
             return pitch == other.pitch &&
-                yaw == other.yaw &&
-                roll == other.roll &&
-                transZ == other.transZ;
+                   yaw == other.yaw &&
+                   roll == other.roll &&
+                   transZ == other.transZ;
+        }
+        //TODO: bring this to Eigen
+        bool closeTo(DOFPose &other, float rotEpsilon, float transZEpsilon)
+        {
+            float diffPitch = pitch - other.pitch;
+            float diffYaw = yaw - other.yaw;
+            float diffRoll = roll - other.roll;
+            float diffTransZ = transZ - other.transZ;
+            float rotDist = std::sqrt(
+                    diffPitch * diffPitch +
+                    diffYaw * diffYaw +
+                    diffRoll * diffRoll);
+            float transZDist = std::abs(diffTransZ);
+            return  rotDist < rotEpsilon && transZDist < transZEpsilon;
         }
     };
     struct DOFBoundaries
