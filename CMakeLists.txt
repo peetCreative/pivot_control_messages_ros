@@ -11,6 +11,13 @@ add_message_files(
         LaparoscopeDOFPose.msg
         LaparoscopeDOFBoundaries.msg
 )
+
+add_service_files(
+        FILES
+        SetInt.srv
+        GetInt.srv
+        SetPose.srv
+)
 generate_messages(
         DEPENDENCIES
         std_msgs
@@ -18,7 +25,7 @@ generate_messages(
 catkin_package(
         INCLUDE_DIRS include
         #  LIBRARIES esvr2_ros
-        CATKIN_DEPENDS roscpp
+        CATKIN_DEPENDS roscpp message_runtime
         #  DEPENDS system_lib
 )
 
@@ -44,11 +51,16 @@ add_recursive(src SOURCES)
 add_library(${PROJECT_NAME} SHARED
         ${SOURCES})
 
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
+
 target_link_libraries( ${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${franka_pivot_control_LIBRARIES}
         pivot_control_messages)
 
 catkin_install_python(PROGRAMS scripts/keyboardController.py
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
+catkin_install_python(PROGRAMS scripts/UserStudy.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )

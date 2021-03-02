@@ -1,8 +1,10 @@
 //
 // Created by peetcreative on 21.02.21.
 //
-#include "ros/time.h"
 #include "PivotControlMessagesRos.h"
+
+#include "PivotControlMessages.h"
+#include "ros/time.h"
 
 namespace pivot_control_messages_ros
 {
@@ -14,6 +16,17 @@ namespace pivot_control_messages_ros
         pose.yaw = poseROS.yaw;
         pose.roll = poseROS.roll;
         pose.transZ = poseROS.trans_z;
+        return pose;
+    }
+
+    pivot_control_messages::DOFPose toDOFPose(
+            pivot_control_messages_ros::SetPose::Request poseReqROS)
+    {
+        pivot_control_messages::DOFPose pose;
+        pose.pitch = poseReqROS.pitch;
+        pose.yaw = poseReqROS.yaw;
+        pose.roll = poseReqROS.roll;
+        pose.transZ = poseReqROS.trans_z;
         return pose;
     }
 
@@ -30,6 +43,22 @@ namespace pivot_control_messages_ros
         poseROS.roll = pose.roll;
         poseROS.trans_z = pose.transZ;
         return poseROS;
+    }
+
+    pivot_control_messages_ros::LaparoscopeDOFPose toROSDOFPose(
+            pivot_control_messages_ros::SetPose::Request pose,
+            std::string frameId = "", int sequence = 0)
+    {
+        pivot_control_messages_ros::LaparoscopeDOFPose poseROS;
+        poseROS.header.stamp = ros::Time::now();
+        poseROS.header.seq = sequence;
+        poseROS.header.frame_id = frameId;
+        poseROS.pitch = pose.pitch;
+        poseROS.yaw = pose.yaw;
+        poseROS.roll = pose.roll;
+        poseROS.trans_z = pose.trans_z;
+        return poseROS;
+
     }
 
     pivot_control_messages::DOFBoundaries toDOFBoundaries(

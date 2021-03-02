@@ -1,0 +1,18 @@
+<launch>
+    <arg name="dof_poses_yaml" default="$(find pivot_control_messages_ros)/config/dof_poses.yaml"/>
+    <arg name="rosbag_location_folder" default="" doc="Location to put recordings to"/>
+    <arg name="force_set_dof_pose_srv" default="/esvr2/force_set_dof_pose" doc="Service name tp force set DOF-Pose"/>
+    <arg name="target_dof_pose_topic" default="/gazebo/laparoscope/joint_controller/target/laparoscope_dof_pose" doc="Topic name for target DOF-Pose"/>
+    <arg name="get_simulation_delay" default="/gazebo/laparoscope/joint_controller/get_simulation_delay" doc="Service name for get simulation delay"/>
+    <arg name="set_simulation_delay" default="/gazebo/laparoscope/joint_controller/set_simulation_delay" doc="Service name for set simulation delay"/>
+
+    <node name="user_study" pkg="pivot_control_messages_ros" type="UserStudy.py"
+           output="screen">
+        <param name="rosbag_location_folder" value="$(arg rosbag_location_folder)"/>
+        <param name="dof_poses_yaml" value="$(arg dof_poses_yaml)"/>
+        <remap from="force_set_dof_pose" to="$(arg force_set_dof_pose_srv)"/>
+        <remap from="get_simulation_delay" to="$(arg get_simulation_delay)"/>
+        <remap from="set_simulation_delay" to="$(arg set_simulation_delay)"/>
+        <remap from="target/DOFPose" to="$(arg target_dof_pose_topic)"/>
+    </node>
+</launch>

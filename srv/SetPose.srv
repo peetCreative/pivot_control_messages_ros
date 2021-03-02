@@ -1,0 +1,7 @@
+float64 pitch
+float64 yaw
+float64 roll
+float64 trans_z
+---
+bool success   # indicate successful run of triggered service
+string message # informational, e.g. for error messages
