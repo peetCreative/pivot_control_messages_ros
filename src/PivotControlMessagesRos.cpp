@@ -8,8 +8,7 @@
 
 namespace pivot_control_messages_ros
 {
-    pivot_control_messages::DOFPose toDOFPose(
-            pivot_control_messages_ros::LaparoscopeDOFPose poseROS)
+    pivot_control_messages::DOFPose toDOFPose(LaparoscopeDOFPose poseROS)
     {
         pivot_control_messages::DOFPose pose;
         pose.pitch = poseROS.pitch;
@@ -19,8 +18,7 @@ namespace pivot_control_messages_ros
         return pose;
     }
 
-    pivot_control_messages::DOFPose toDOFPose(
-            pivot_control_messages_ros::SetPose::Request poseReqROS)
+    pivot_control_messages::DOFPose toDOFPose(SetPose::Request poseReqROS)
     {
         pivot_control_messages::DOFPose pose;
         pose.pitch = poseReqROS.pitch;
@@ -30,11 +28,11 @@ namespace pivot_control_messages_ros
         return pose;
     }
 
-    pivot_control_messages_ros::LaparoscopeDOFPose toROSDOFPose(
+    LaparoscopeDOFPose toROSDOFPose(
             pivot_control_messages::DOFPose pose,
             std::string frameId = "", int sequence = 0)
     {
-        pivot_control_messages_ros::LaparoscopeDOFPose poseROS;
+        LaparoscopeDOFPose poseROS;
         poseROS.header.stamp = ros::Time::now();
         poseROS.header.seq = sequence;
         poseROS.header.frame_id = frameId;
@@ -45,11 +43,11 @@ namespace pivot_control_messages_ros
         return poseROS;
     }
 
-    pivot_control_messages_ros::LaparoscopeDOFPose toROSDOFPose(
-            pivot_control_messages_ros::SetPose::Request pose,
+    LaparoscopeDOFPose toROSDOFPose(
+            SetPose::Request pose,
             std::string frameId = "", int sequence = 0)
     {
-        pivot_control_messages_ros::LaparoscopeDOFPose poseROS;
+        LaparoscopeDOFPose poseROS;
         poseROS.header.stamp = ros::Time::now();
         poseROS.header.seq = sequence;
         poseROS.header.frame_id = frameId;
@@ -62,7 +60,7 @@ namespace pivot_control_messages_ros
     }
 
     pivot_control_messages::DOFBoundaries toDOFBoundaries(
-            pivot_control_messages_ros::LaparoscopeDOFBoundaries boundariesROS)
+            LaparoscopeDOFBoundaries boundariesROS)
     {
         pivot_control_messages::DOFBoundaries boundaries;
         boundaries.pitchMax = boundariesROS.pitch_max;
@@ -74,14 +72,13 @@ namespace pivot_control_messages_ros
         boundaries.transZMax = boundariesROS.trans_z_max;
         boundaries.transZMin = boundariesROS.trans_z_min;
         return boundaries;
-
     }
 
-    pivot_control_messages_ros::LaparoscopeDOFBoundaries toROSDOFBoundaries(
+    LaparoscopeDOFBoundaries toROSDOFBoundaries(
             pivot_control_messages::DOFBoundaries boundaries,
             std::string frameId, int sequence)
     {
-        pivot_control_messages_ros::LaparoscopeDOFBoundaries boundariesROS;
+        LaparoscopeDOFBoundaries boundariesROS;
         boundariesROS.header.stamp = ros::Time::now();
         boundariesROS.header.seq = sequence;
         boundariesROS.header.frame_id = frameId;
