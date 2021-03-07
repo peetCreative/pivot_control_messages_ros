@@ -51,7 +51,10 @@ add_recursive(src SOURCES)
 add_library(${PROJECT_NAME} SHARED
         ${SOURCES})
 
-add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}
+        ${catkin_EXPORTED_TARGETS}
+        ${PROJECT_NAME}_generate_messages_cpp
+        )
 
 target_link_libraries( ${PROJECT_NAME}
         ${catkin_LIBRARIES}
