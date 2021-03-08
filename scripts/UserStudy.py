@@ -33,13 +33,10 @@ class UserStudy:
         for dofPose in self.startPosesDofs:
             i = i + 1
             print("{}: {}".format(i, DofPoseToStr(dofPose)))
-        rospy.wait_for_service('force_set_dof_pose')
         self.forceNewPoseService = rospy.ServiceProxy('force_set_dof_pose', SetPose)
         self.curStartPoseId = "None"
 
-        # Set simulaiton-delay
-        rospy.wait_for_service('get_simulation_delay')
-        rospy.wait_for_service('set_simulation_delay')
+        # Get/Set simulaiton-delay
         self.getSimulationDelayService = rospy.ServiceProxy(
             'get_simulation_delay', GetInt)
         self.setSimulationDelayService = rospy.ServiceProxy(
@@ -60,10 +57,12 @@ class UserStudy:
         self.participantId = participantId
 
     def SetStartPoseAbs(self, num):
+        print('force_set_dof_pose')
         if not (0 <= num and num < len(self.startPosesDofs)):
             print("Out of bound")
             return False
         pose = self.startPosesDofs[num]
+        rospy.wait_for_service('force_set_dof_pose')
         response = self.forceNewPoseService(
             pose['pitch'], pose['yaw'], pose['roll'], pose['trans_z'])
         if response.success:
@@ -84,11 +83,14 @@ class UserStudy:
             print('simulation delay too big')
             return False
         print('set simulation delay to {}ms'.format(delay))
+        rospy.wait_for_service('set_simulation_delay')
         response = self.setSimulationDelayService(delay)
         return response.success
 
     def SetSimulationDelayRel(self, rel):
         #getSimulaiton Delay
+        print('get_simulation_delay')
+        rospy.wait_for_service('get_simulation_delay')
         response = self.getSimulationDelayService()
         if response.success:
             newDelay = response.data + rel
