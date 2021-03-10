@@ -17,8 +17,8 @@ namespace pivot_control_messages
             std::stringstream ss;
             ss << "pitch:" << pitch
                << " yaw:" << yaw
-               << " roll" << roll
-               << " transZ" << transZ;
+               << " roll:" << roll
+               << " transZ:" << transZ;
             return ss.str();
         }
         bool operator==(const DOFPose& other)
