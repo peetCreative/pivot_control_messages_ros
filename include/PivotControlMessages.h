@@ -8,10 +8,10 @@ namespace pivot_control_messages
 {
     struct DOFPose
     {
-        float pitch = 0;
-        float yaw = 0;
-        float roll = 0;
-        float transZ = 0;
+        double pitch = 0;
+        double yaw = 0;
+        double roll = 0;
+        double transZ = 0;
         std::string toString()
         {
             std::stringstream ss;
@@ -29,30 +29,30 @@ namespace pivot_control_messages
                    transZ == other.transZ;
         }
         //TODO: bring this to Eigen
-        bool closeTo(DOFPose &other, float rotEpsilon, float transZEpsilon)
+        bool closeTo(DOFPose &other, double rotEpsilon, double transZEpsilon)
         {
-            float diffPitch = pitch - other.pitch;
-            float diffYaw = yaw - other.yaw;
-            float diffRoll = roll - other.roll;
-            float diffTransZ = transZ - other.transZ;
-            float rotDist = std::sqrt(
+            double diffPitch = pitch - other.pitch;
+            double diffYaw = yaw - other.yaw;
+            double diffRoll = roll - other.roll;
+            double diffTransZ = transZ - other.transZ;
+            double rotDist = std::sqrt(
                     diffPitch * diffPitch +
                     diffYaw * diffYaw +
                     diffRoll * diffRoll);
-            float transZDist = std::abs(diffTransZ);
+            double transZDist = std::abs(diffTransZ);
             return  rotDist < rotEpsilon && transZDist < transZEpsilon;
         }
     };
     struct DOFBoundaries
     {
-        float pitchMax = 0;
-        float pitchMin = 0;
-        float yawMax = 0;
-        float yawMin = 0;
-        float rollMax = 0;
-        float rollMin = 0;
-        float transZMax = 0;
-        float transZMin = 0;
+        double pitchMax = 0;
+        double pitchMin = 0;
+        double yawMax = 0;
+        double yawMin = 0;
+        double rollMax = 0;
+        double rollMin = 0;
+        double transZMax = 0;
+        double transZMin = 0;
     };
 
     class PivotController {
