@@ -1,18 +1,21 @@
 <launch>
+    <arg name="pid" default=""/>
+    <arg name="setup" default=""/>
     <arg name="dof_poses_yaml" default="$(find pivot_control_messages_ros)/config/dof_poses.yaml"/>
-    <arg name="rosbag_location_folder" default="" doc="Location to put recordings to"/>
-    <arg name="force_set_dof_pose_srv" default="/laparoscope/pivot_controller/force_set_dof_pose" doc="Service name tp force set DOF-Pose"/>
-    <arg name="target_dof_pose_topic" default="/laparoscope/joint_controller/target/laparoscope_dof_pose" doc="Topic name for target DOF-Pose"/>
-    <arg name="get_simulation_delay" default="/laparoscope/joint_controller/get_simulation_delay" doc="Service name for get simulation delay"/>
-    <arg name="set_simulation_delay" default="/laparoscope/joint_controller/set_simulation_delay" doc="Service name for set simulation delay"/>
+    <arg name="rosbag_location_folder" default="/local_home/klausinpe/user_study_results/current" doc="Location to put recordings to"/>
 
     <node name="user_study" pkg="pivot_control_messages_ros" type="UserStudy.py"
-           output="screen">
+           output="screen" required ="true">
+        <param name="pid" value="$(arg pid)"/>
+        <param name="setup" value="$(arg setup)"/>
         <param name="rosbag_location_folder" value="$(arg rosbag_location_folder)"/>
         <param name="dof_poses_yaml" value="$(arg dof_poses_yaml)"/>
-        <remap from="force_set_dof_pose" to="$(arg force_set_dof_pose_srv)"/>
-        <remap from="get_simulation_delay" to="$(arg get_simulation_delay)"/>
-        <remap from="set_simulation_delay" to="$(arg set_simulation_delay)"/>
-        <remap from="target/DOFPose" to="$(arg target_dof_pose_topic)"/>
+        <remap from="force_set_dof_pose" to="/laparoscope/pivot_controller/force_set_dof_pose"/>
+        <remap from="get_simulation_delay" to="/laparoscope/joint_controller/get_simulation_delay"/>
+        <remap from="set_simulation_delay" to="/laparoscope/joint_controller/set_simulation_delay"/>
+        <remap from="target/DOFPose" to="/laparoscope/joint_controller/target/laparoscope_dof_pose"/>
+        <remap from="DOFBoundaries" to="/laparoscope/pivot_controller/laparoscope_dof_boundaries"/>
+        <remap from="current/DOFPose" to="/laparoscope/pivot_controller/current/laparoscope_dof_pose"/>
+        <remap from="image_raw" to="/laparoscope/camera/left/image_raw"/>
     </node>
 </launch>
