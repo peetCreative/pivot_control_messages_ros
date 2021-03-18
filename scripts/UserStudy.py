@@ -37,15 +37,17 @@ class UserStudy:
         self.forceNewPoseService = rospy.ServiceProxy('force_set_dof_pose', SetPose)
         self.curStartPoseId = "None"
 
+        self.enableSetSimulationDelay = False
+        if self.enableSetSimulationDelay:
         # Get/Set simulaiton-delay
-        self.getSimulationDelayService = rospy.ServiceProxy(
-            'get_simulation_delay', GetInt)
-        self.setSimulationDelayService = rospy.ServiceProxy(
-            'set_simulation_delay', SetInt)
+            self.getSimulationDelayService = rospy.ServiceProxy(
+                'get_simulation_delay', GetInt)
+            self.setSimulationDelayService = rospy.ServiceProxy(
+                'set_simulation_delay', SetInt)
 
-        response = self.getSimulationDelayService()
-        self.curSimulationDelay = response.data
-        # self.curSimulationDelay = 0
+            response = self.getSimulationDelayService()
+            self.curSimulationDelay = response.data
+            # self.curSimulationDelay = 0
 
         #Start rosbags
         #Subscribe wanted topics
@@ -152,9 +154,10 @@ if __name__ == '__main__':
     print("j:  Go to previous Pose")
     print("k:  Go to next Pose")
     print("pX: Go to Xth Pose")
-    print("d:  Decrease simulation delay")
-    print("f:  Increase simulation delay")
-    print("eX: Set simulation delay to X ms")
+    if self.enableSetSimulationDelay:
+        print("d:  Decrease simulation delay")
+        print("f:  Increase simulation delay")
+        print("eX: Set simulation delay to X ms")
     print("r:  Record than press enter for start and stop")
     recording = False
     while not rospy.is_shutdown():
@@ -196,30 +199,31 @@ if __name__ == '__main__':
             if not succ:
                 print("Could not set new pose")
             continue
-        if command == 'd':
-            print('Decrease simulation delay')
-            succ = userStudy.SetSimulationDelayRel(-delayStep)
-            if not succ:
-                print("Could not decrease delay")
-            continue
-        if command == 'f':
-            print('Increase simulation delay')
-            succ = userStudy.SetSimulationDelayRel(delayStep)
-            if not succ:
-                print("could not decrease delay")
-            continue
-        if command.startswith('e'):
-            print('set simulation delay')
-            delay = None
-            try:
-                delay = int(command[1:])
-            except:
-                print("Could not delay")
+        if self.enableSetSimulationDelay:
+            if command == 'd':
+                print('Decrease simulation delay')
+                succ = userStudy.SetSimulationDelayRel(-delayStep)
+                if not succ:
+                    print("Could not decrease delay")
                 continue
-            succ = userStudy.SetSimulationDelayAbs(delay)
-            if not succ:
-                print("could not set new simulation delay")
-            continue
+            if command == 'f':
+                print('Increase simulation delay')
+                succ = userStudy.SetSimulationDelayRel(delayStep)
+                if not succ:
+                    print("could not decrease delay")
+                continue
+            if command.startswith('e'):
+                print('set simulation delay')
+                delay = None
+                try:
+                    delay = int(command[1:])
+                except:
+                    print("Could not delay")
+                    continue
+                succ = userStudy.SetSimulationDelayAbs(delay)
+                if not succ:
+                    print("could not set new simulation delay")
+                continue
         # Record Rosbag
         if command == 'r':
             print('Press Enter for record to rosbag')
