@@ -53,7 +53,9 @@ class KeyboardDOFController:
         self.direction = ""
 
         # 5mm every step
-        self.step_distance = 0.005
+        self.step_distance = 0.02
+        # make rotation 4x faster than lateral movements
+        self.rot_factor = 4
         # the laparoscope is 30° tilted
         self.camera_tilt = 0.52359
         self.add_camera_tilt = False
@@ -89,8 +91,8 @@ class KeyboardDOFController:
                     math.pi - self.camera_tilt) * pose.trans_z) / math.sin(
                     trans_pitch)
             ))
-        step_pitch = self.step_distance / axis_length
-        step_yaw = self.step_distance / axis_length
+        step_pitch = self.rot_factor * self.step_distance / axis_length
+        step_yaw = self.rot_factor * self.step_distance / axis_length
         # apply step direction
         if self.direction == "up":
             pose.pitch = pose.pitch + step_pitch
