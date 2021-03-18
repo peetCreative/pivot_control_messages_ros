@@ -38,6 +38,7 @@ class KeyboardDOFController:
             "current/laparoscope_dof_pose",
             LaparoscopeDOFPose, self.update_pose)
 
+        self.seq = 0
         self.pose = LaparoscopeDOFPose()
         self.boundaries = LaparoscopeDOFBoundaries()
         # rospy.Timer(rospy.Duration(0.1), self.checkKeyboard)
@@ -67,6 +68,10 @@ class KeyboardDOFController:
 
     def move(self):
         pose = LaparoscopeDOFPose()
+        self.seq = self.seq + 1
+        pose.header.seq = self.seq
+        pose.header.stamp = rospy.Time()
+        pose.header.frame_id = "laparoscope"
         pose.yaw = self.pose.yaw
         pose.pitch = self.pose.pitch
         pose.roll = self.pose.roll
