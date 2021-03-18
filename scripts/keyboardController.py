@@ -60,7 +60,7 @@ class KeyboardDOFController:
         self.camera_tilt = 0.52359
         self.add_camera_tilt = False
         # focus distance in 10 cm
-        self.focus_distance = 0.15
+        self.focus_distance = 0.10
         self.add_trans_pitch = False
 
     def update_boundaries(self, boundaries):
@@ -91,14 +91,17 @@ class KeyboardDOFController:
         ))
         axis_length = self.focus_distance
         # the point which should be equally fast moving
-        if pose.trans_z != 0:
+        if pose.trans_z != 0 and self.add_trans_pitch:
             axis_length = math.asin(limitToOne(
                 (math.sin(
                     math.pi - self.camera_tilt) * pose.trans_z) / math.sin(
                     trans_pitch)
             ))
-        step_pitch = self.rot_factor * self.step_distance / axis_length
-        step_yaw = self.rot_factor * self.step_distance / axis_length
+        else:
+            axis_length = self.focus_distance - self.pose.trans_z
+        # TODO: I don't understand this anymore
+        step_pitch = self.rot_factor * self.step_distance# / axis_length
+        step_yaw = self.rot_factor * self.step_distance# / axis_length
         # apply step direction
         if self.direction == "up":
             pose.pitch = pose.pitch + step_pitch
@@ -114,6 +117,15 @@ class KeyboardDOFController:
         if self.direction == "out":
             pose.trans_z = pose.trans_z - self.step_distance
         # check boundaries
+        pose.pitch =  max(pose.pitch, self.boundaries.pitch_min)
+        pose.pitch =  min(pose.pitch, self.boundaries.pitch_max)
+        pose.yaw =  max(pose.yaw, self.boundaries.yaw_min)
+        pose.yaw =  min(pose.yaw, self.boundaries.yaw_max)
+        pose.roll =  max(pose.roll, self.boundaries.roll_min)
+        pose.roll =  min(pose.roll, self.boundaries.roll_max)
+        pose.trans_z =  max(pose.trans_z, self.boundaries.trans_z_min)
+        pose.trans_z =  min(pose.trans_z, self.boundaries.trans_z_max)
+
         if (self.boundaries.yaw_min <= pose.yaw <= self.boundaries.yaw_max and
                 self.boundaries.pitch_min <= pose.pitch <= self.boundaries.pitch_max and
                 self.boundaries.roll_min <= pose.roll <= self.boundaries.roll_max and
