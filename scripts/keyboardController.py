@@ -61,6 +61,7 @@ class KeyboardDOFController:
         self.add_camera_tilt = False
         # focus distance in 10 cm
         self.focus_distance = 0.15
+        self.add_trans_pitch = False
 
     def update_boundaries(self, boundaries):
         self.boundaries = boundaries
@@ -117,7 +118,7 @@ class KeyboardDOFController:
                 self.boundaries.pitch_min <= pose.pitch <= self.boundaries.pitch_max and
                 self.boundaries.roll_min <= pose.roll <= self.boundaries.roll_max and
                 self.boundaries.trans_z_min <= pose.trans_z <= self.boundaries.trans_z_max):
-            if self.pose.trans_z != pose.trans_z:
+            if self.pose.trans_z != pose.trans_z and self.add_trans_pitch:
                 trans_pitch_new = math.asin(limitToOne(
                     (math.sin(math.pi - self.camera_tilt) * pose.trans_z) /
                     self.focus_distance
