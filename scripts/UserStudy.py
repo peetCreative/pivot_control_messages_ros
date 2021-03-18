@@ -195,7 +195,7 @@ if __name__ == '__main__':
             except:
                 print("Could not parse num")
                 continue
-            succ = userStudy.SetStartPoseAbs(poseNum)
+            succ = userStudy.SetStartPoseAbs(poseNum-1)
             if not succ:
                 print("Could not set new pose")
             continue
