@@ -33,6 +33,7 @@ class UserStudy:
         for dofPose in self.startPosesDofs:
             i = i + 1
             print("{}: {}".format(i, DofPoseToStr(dofPose)))
+        rospy.wait_for_service('force_set_dof_pose')
         self.forceNewPoseService = rospy.ServiceProxy('force_set_dof_pose', SetPose)
         self.curStartPoseId = "None"
 
