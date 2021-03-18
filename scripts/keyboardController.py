@@ -50,7 +50,7 @@ class KeyboardDOFController:
         self.screen.fill((159, 182, 205))
 
         self.font = pygame.font.Font(None, 30)
-        self.direction = ""
+        self.direction = "stop motion"
 
         # 5mm every step
         self.step_distance = 0.02
@@ -78,6 +78,11 @@ class KeyboardDOFController:
         pose.pitch = self.pose.pitch
         pose.roll = self.pose.roll
         pose.trans_z = self.pose.trans_z
+        if self.direction == "stop motion":
+            # just publish the last pose we got
+            self.pose_publisher.publish(self.pose)
+            return
+        # print("move further")
         # calculate the pitch allready caused by trans_z
         trans_pitch = math.asin(limitToOne(
             (math.sin(
@@ -171,40 +176,49 @@ class KeyboardDOFController:
 
     def start(self):
         done = False
+        move_old = False
         while not done:
             self.display()
             pygame.event.pump()
             keys = pygame.key.get_pressed()
+            move = False
             if rospy.is_shutdown():
                 done = True
             if keys[K_ESCAPE]:
                 done = True
             if keys[K_w]:
                 self.direction = "up"
-                self.move()
+                move = True
             if keys[K_s]:
                 self.direction = "down"
-                self.move()
+                move = True
             if keys[K_a]:
                 self.direction = "left"
-                self.move()
+                move = True
             if keys[K_d]:
                 self.direction = "right"
-                self.move()
+                move = True
             if keys[K_q]:
                 self.direction = "out"
-                self.move()
+                move = True
             if keys[K_e]:
                 self.direction = "in"
-                self.move()
+                move = True
             if keys[K_y]:
                 self.add_camera_tilt = True
                 self.direction = ""
-                self.move()
+                move = True
             if keys[K_x]:
                 self.add_camera_tilt = False
                 self.direction = ""
+                move = True
+            if move:
                 self.move()
+                move_old = True
+            if move_old and not move:
+                self.direction = "stop motion"
+                self.move()
+                move_old = False
 
 
 if __name__ == '__main__':
