@@ -11,6 +11,7 @@ add_message_files(
         FILES
         LaparoscopeDOFPose.msg
         LaparoscopeDOFBoundaries.msg
+        PivotError.msg
 )
 
 add_service_files(
