@@ -3,18 +3,28 @@
   yaw: 0.0
   roll: 0.0
   trans_z: 0.0
-- id: Pos1
-  pitch: -0.5
-  yaw: 0.0
-  roll: 0.0
-  trans_z: 0.0
-- id: Pos2
-  pitch: -0.2
-  yaw: 0.2
-  roll: 0.0
-  trans_z: 0.0
-- id: Pos3
-  pitch: -0.4
-  yaw: 0.0
-  roll: 0.0
-  trans_z: 0.1
+- id: phantom-Kidney
+  yaw: 0.4494978944864922
+  pitch: -0.4552132829887375
+  roll: 0.1971258256711061
+  trans_z: 0.012521500625672422
+- id: phantom-stomach
+  yaw: -0.43207143637005285
+  pitch: 0.09868721390902022
+  roll: 0.04055477674980145
+  trans_z: 0.009895425251021939
+- id: phantom-stomach-close
+  yaw: -0.43207143637005285
+  pitch: 0.09868721390902022
+  roll: 0.04055477674980145
+  trans_z: 0.009895425251021939
+- id: phantom-gut
+  yaw: -0.46717793093901694
+  pitch: -0.46022830404284504
+  roll: -0.20621338867078107
+  trans_z: -0.011166852041841147
+- id: phantom-liver-up
+  yaw: 0.023410460024743125
+  pitch: 0.18116025301408528
+  roll: -0.0036202195724080576
+  trans_z: -0.0006297286080805264
