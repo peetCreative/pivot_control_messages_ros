@@ -293,7 +293,7 @@ class UserStudy:
         rospy.loginfo("Stop Recording")
         self.rosbag_lock.release()
 
-    def WriteToROSBag(self, message, topic):add
+    def WriteToROSBag(self, message, topic):
         self.rosbag_lock.acquire()
         if self.rosbag is None:
             return
