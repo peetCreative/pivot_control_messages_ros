@@ -1,13 +1,17 @@
 <launch>
-    <arg name="pid" default=""/>
-    <arg name="setup" default=""/>
+    <arg name="participant_id" default=""/>
+    <arg name="setup_id" default=""/>
+    <arg name="tmux" default="false"/>
+    <arg unless="$(arg tmux)" name="launch_prefix" value=""/>
+    <arg if="$(arg tmux)" name="launch_prefix" value="$(find pivot_control_messages_ros)/scripts/run_tmux.sh"/>
     <arg name="dof_poses_yaml" default="$(find pivot_control_messages_ros)/config/dof_poses.yaml"/>
-    <arg name="rosbag_location_folder" default="/local_home/klausinpe/user_study_results/current" doc="Location to put recordings to"/>
+    <arg name="rosbag_location_folder" default="/tmp" doc="Location to put recordings to"/>
 
-    <node name="user_study" pkg="pivot_control_messages_ros" type="UserStudy.py"
-           output="screen" required ="true">
-        <param name="pid" value="$(arg pid)"/>
-        <param name="setup" value="$(arg setup)"/>
+    <node name="user_study" pkg="pivot_control_messages_ros" type="ControlUserStudy.py"
+           output="screen" required ="false"
+           launch-prefix="$(arg launch_prefix)">
+        <param name="participant_id" value="$(arg participant_id)"/>
+        <param name="setup_id" value="$(arg setup_id)"/>
         <param name="rosbag_location_folder" value="$(arg rosbag_location_folder)"/>
         <param name="dof_poses_yaml" value="$(arg dof_poses_yaml)"/>
         <remap from="force_set_dof_pose" to="/laparoscope/pivot_controller/force_set_dof_pose"/>
@@ -16,6 +20,8 @@
         <remap from="target/DOFPose" to="/laparoscope/joint_controller/target/laparoscope_dof_pose"/>
         <remap from="DOFBoundaries" to="/laparoscope/pivot_controller/laparoscope_dof_boundaries"/>
         <remap from="current/DOFPose" to="/laparoscope/pivot_controller/current/laparoscope_dof_pose"/>
+        <remap from="pivot_error" to="/laparoscope/pivot_controller/current/pivot_error"/>
         <remap from="image_raw" to="/laparoscope/camera/left/image_raw"/>
+        <remap from="camera_info" to="/laparoscope/camera/left/camera_info"/>
     </node>
 </launch>

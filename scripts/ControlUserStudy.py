@@ -1,20 +1,23 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 import rosbag
 import yaml
 from threading import Lock
 from datetime import datetime
 from pivot_control_messages_ros.srv import GetInt, SetInt, SetPose
-from pivot_control_messages_ros.msg import LaparoscopeDOFPose, LaparoscopeDOFBoundaries
+from pivot_control_messages_ros.msg import LaparoscopeDOFPose,\
+    LaparoscopeDOFBoundaries, PivotError
 from sensor_msgs.msg import Image
+from tf2_msgs.msg import TFMessage
+import tf2_ros
 
 delayStep = 10
 delayMax = 2000
 
-screen_boxtrainer = "screen_box-trainer"
-vr_boxtrainer = "vr_box-trainer"
-vr_simulation = "vr_box-trainer"
-vr_robotarm = "vr_box-trainer"
+screen_boxtrainer = "screen-boxtrainer"
+vr_boxtrainer = "vr-boxtrainer"
+vr_simulation = "vr-simulation"
+vr_robotarm = "vr-robotarm"
 
 def DofPoseToStr(pose):
     return '{} Pitch:{} Yaw:{} Roll:{} TransZ:{}'.format(
@@ -25,47 +28,70 @@ def DofPoseToStr(pose):
 class UserStudy:
     def __init__(self):
         self.ready = True
-        self.participantId = "NONE"
+        self.participantIdStr = ""
         self.rosbag_lock = Lock()
-
         #init ROS
         node = rospy.init_node('user_study')
 
-        if not rospy.has_param('~dof_poses_yaml')\
-                or not rospy.has_param('~pid')\
-                or not rospy.has_param('~setup'):
-            rospy.logerr("one of the following topics missing: dof_poses_yaml, pid, setup")
-            self.ready = False
-            return
-        dofPosesYamlUrl =  rospy.get_param('~dof_poses_yaml')
-        self.participantId =  rospy.get_param('~pid')
-        if type(self.participantId) is not int:
-            rospy.logerr("pid is not int")
-            self.ready = False
-            return
-        self.setupStr =  rospy.get_param('~setup')
+        if rospy.has_param('~participant_id'):
+            self.participantIdStr =  rospy.get_param('~participant_id')
+        if rospy.has_param('~setup_id'):
+            self.setupIdStr =  rospy.get_param('~setup_id')
         self.enableSetSimulationDelay = False
         self.enableForceNewPose = False
-        validSetup = False
-        if self.setupStr == 1 or self.setupStr == screen_boxtrainer:
-            self.setupStr = screen_boxtrainer
-            validSetup = True
-        if self.setupStr == 2 or self.setupStr == vr_boxtrainer:
-            self.setupStr = vr_boxtrainer
-            validSetup = True
-        if self.setupStr == 3  or self.setupStr == vr_simulation:
-            self.setupStr = vr_simulation
+
+        #Start rosbags
+        #Subscribe wanted topics
+        self.rosbagLocation = rospy.get_param("/log_folder", "")
+        self.rosbag = None
+        self.targetDOFPoseSub = None
+        self.DOFBoundariesSub = None
+        self.currentDOFPoseSub = None
+        self.tfSub = None
+        self.pivotErrorSub = None
+        self.imageSub = None
+
+    def initializeParticipantId(self):
+        if self.participantIdStr == "":
+            print("participant ID empty")
+            return False
+        try:
+            participantId = int(self.participantIdStr)
+            print("Set participant ID to \'{}\'".format(self.participantIdStr))
+            rospy.set_param("participant_id", self.participantIdStr)
+        except Exception as e:
+            rospy.logerr("participant ID is invalid give number! {}".format(e))
+            self.participantIdStr = ""
+            return False
+        return True
+
+
+    def initializeSetupId(self):
+        valid = False
+        if self.setupIdStr == screen_boxtrainer\
+                or self.setupIdStr == vr_boxtrainer:
+            valid = True
+        if self.setupIdStr == vr_simulation:
             self.enableForceNewPose = True
-            validSetup = True
-        if self.setupStr == 4  or self.setupStr == vr_robotarm:
-            self.setupStr = vr_robotarm
+            valid = True
+        if self.setupIdStr == vr_robotarm:
             self.enableForceNewPose = True
-            validSetup = True
-        if not validSetup:
-            rospy.logerr("{} is no valid setup".format(self.setupStr))
-            self.ready = False
+            valid = True
+        if valid:
+            print("set setup_id")
+            rospy.set_param("setup_id", self.setupIdStr)
+        return valid
+
+    def initializeRest(self):
+        if not self.ready:
             return
         if self.enableForceNewPose:
+            if not rospy.has_param('~dof_poses_yaml'):
+                rospy.logerr("no dofPoses File registered")
+                self.ready = False
+                # break an quit
+                return False
+            dofPosesYamlUrl = rospy.get_param('~dof_poses_yaml')
             rospy.loginfo("load Poses from {}".format(dofPosesYamlUrl))
             self.startPosesDofs = None
             self.curStartPoseNum = -1
@@ -75,13 +101,13 @@ class UserStudy:
             i = 0
             for dofPose in self.startPosesDofs:
                 i = i + 1
-                rospy.loginfo("{}: {}".format(i, DofPoseToStr(dofPose)))
+                print("{}: {}".format(i, DofPoseToStr(dofPose)))
             rospy.wait_for_service('force_set_dof_pose')
             self.forceNewPoseService = rospy.ServiceProxy('force_set_dof_pose', SetPose)
             self.curStartPoseId = "NoPose"
 
         if self.enableSetSimulationDelay:
-        # Get/Set simulaiton-delay
+            # Get/Set simulaiton-delay
             self.getSimulationDelayService = rospy.ServiceProxy(
                 'get_simulation_delay', GetInt)
             self.setSimulationDelayService = rospy.ServiceProxy(
@@ -90,15 +116,33 @@ class UserStudy:
             response = self.getSimulationDelayService()
             self.curSimulationDelay = response.data
             # self.curSimulationDelay = 0
-
-        #Start rosbags
-        #Subscribe wanted topics
-        self.rosbagLocation = rospy.get_param("~rosbag_location_folder", "")
-        self.rosbag = None
         if not self.TestTopics():
             rospy.logerr("needed topics are not publishing")
             self.ready = False
-            return
+
+
+    def participantSetupDialog(self):
+        if self.participantIdStr == "":
+            self.participantIdStr = input("Participant ID:")
+            if self.participantIdStr == "q":
+                self.ready = False
+                return
+        if self.setupIdStr == "":
+            print("1: " + screen_boxtrainer)
+            print("2: " + vr_boxtrainer)
+            print("3: " + vr_simulation)
+            print("4: " + vr_robotarm)
+            id = input("Setup ID:")
+            if id == '1':
+                self.setupIdStr = screen_boxtrainer
+            if id == '2':
+                self.setupIdStr = vr_boxtrainer
+            if id == '3':
+                self.setupIdStr = vr_simulation
+            if id == '4':
+                self.setupIdStr = vr_robotarm
+            if id == "q":
+                self.ready = False
 
     def SetStartPoseAbs(self, num):
         rospy.loginfo('force_set_dof_pose')
@@ -151,10 +195,10 @@ class UserStudy:
                 self.curSimulationDelay) if self.enableSetSimulationDelay else ""
             t = datetime.now()
             timestr = t.isoformat()
-            bagName = '{}/{}_{}{}{}_{}.bag'.format(
+            bagName = '{}/rosbag_{}_{}{}{}_{}.bag'.format(
                 self.rosbagLocation,
-                self.participantId,
-                self.setupStr,
+                self.participantIdStr,
+                self.setupIdStr,
                 poses_indicator,
                 delay_indicator,
                 timestr)
@@ -173,7 +217,7 @@ class UserStudy:
     def TestTopics(self):
         try:
             timeout = 1.0
-            if self.setupStr == vr_simulation or self.setupStr == vr_robotarm:
+            if self.setupIdStr == vr_simulation or self.setupIdStr == vr_robotarm:
                 # this topic does not publish continuously
                 # topic = "target/DOFPose"
                 # rospy.wait_for_message(topic, LaparoscopeDOFPose, timeout)
@@ -181,15 +225,16 @@ class UserStudy:
                 rospy.wait_for_message(topic, LaparoscopeDOFBoundaries, timeout)
                 topic = "current/DOFPose"
                 rospy.wait_for_message(topic, LaparoscopeDOFPose, timeout)
-                #TODO subscribe to Robot camera_tip tf
-                self.cameraTipSub = None
 
-            if self.setupStr == vr_robotarm \
-                    or self.setupStr == vr_simulation \
-                    or self.setupStr == vr_robotarm:
-                #TODO subscribe to head movements
-                self.headTfSub = None
-                pass
+            if self.setupIdStr == vr_robotarm \
+                    or self.setupIdStr == vr_simulation \
+                    or self.setupIdStr == vr_robotarm:
+                topic = "/tf"
+                rospy.wait_for_message(topic, TFMessage, 10)
+
+            if self.setupIdStr == vr_robotarm:
+                topic = "pivot_error"
+                rospy.wait_for_message(topic, PivotError, timeout)
 
             topic = "image_raw"
             rospy.wait_for_message(topic, Image, timeout)
@@ -199,7 +244,7 @@ class UserStudy:
         return True
 
     def SubscribeTopics(self):
-        if self.setupStr == vr_simulation or self.setupStr == vr_robotarm:
+        if self.setupIdStr == vr_simulation or self.setupIdStr == vr_robotarm:
             topic = "target/DOFPose"
             self.targetDOFPoseSub = rospy.Subscriber(
                 topic, LaparoscopeDOFPose, self.WriteToROSBag, topic)
@@ -209,37 +254,46 @@ class UserStudy:
             topic = "current/DOFPose"
             self.currentDOFPoseSub = rospy.Subscriber(
                 topic, LaparoscopeDOFPose, self.WriteToROSBag, topic)
-            #TODO subscribe to Robot camera_tip tf
-            self.cameraTipSub = None
 
-        if self.setupStr == vr_robotarm \
-                or self.setupStr == vr_simulation \
-                or self.setupStr == vr_robotarm:
-            #TODO subscribe to head movements
-            self.headTfSub = None
-            pass
+        if self.setupIdStr == vr_robotarm \
+                or self.setupIdStr == vr_simulation \
+                or self.setupIdStr == vr_robotarm:
+            topic = "/tf"
+            self.tfSub = rospy.Subscriber(
+                topic, TFMessage, self.WriteToROSBag, topic)
+
+        if self.setupIdStr == vr_robotarm:
+            self.pivotErrorSub = rospy.Subscriber(
+                topic, PivotError, self.WriteToROSBag, topic)
 
         topic = "image_raw"
         self.imageSub = rospy.Subscriber(
             topic, Image, self.WriteToROSBag, topic)
 
     def UnsubscribeTopics(self):
-        if self.setupStr == vr_simulation or self.setupStr == vr_robotarm:
+        if self.targetDOFPoseSub is not None:
             self.targetDOFPoseSub.unregister()
-        if self.setupStr == vr_simulation or self.setupStr == vr_robotarm:
+        if self.DOFBoundariesSub is not None:
             self.DOFBoundariesSub.unregister()
-        if self.setupStr == vr_simulation or self.setupStr == vr_robotarm:
+        if self.currentDOFPoseSub is not None:
             self.currentDOFPoseSub.unregister()
+        if self.tfSub is not None:
+            self.tfSub.unregister()
+        if self.pivotErrorSub is not None:
+            self.pivotErrorSub.unregister()
         if self.imageSub is not None:
             self.imageSub.unregister()
 
     def StopRosbag(self):
+        self.rosbag_lock.acquire()
+        rospy.loginfo("StartStop Recording")
         if self.rosbag is not None:
             self.rosbag.close()
             self.rosbag = None
         rospy.loginfo("Stop Recording")
+        self.rosbag_lock.release()
 
-    def WriteToROSBag(self, message, topic):
+    def WriteToROSBag(self, message, topic):add
         self.rosbag_lock.acquire()
         if self.rosbag is None:
             return
@@ -249,7 +303,7 @@ class UserStudy:
             rospy.logerr("ROSBAGException: {0}".format(err))
             rospy.logwarn("something went wrong with the ROSBag")
             self.rosbag.close()
-            bag = None
+            self.rosbag = None
         finally:
             self.rosbag_lock.release()
 
@@ -340,5 +394,15 @@ def mainloop(userStudy):
 
 if __name__ == '__main__':
     userStudy = UserStudy()
+    succParticipantId = userStudy.initializeParticipantId()
+    succSetupId = userStudy.initializeSetupId()
+    while not(succParticipantId and succSetupId) and userStudy.ready:
+        userStudy.participantSetupDialog()
+        if not succParticipantId:
+            succParticipantId = userStudy.initializeParticipantId()
+        if not succSetupId:
+            succSetupId = userStudy.initializeSetupId()
+        print("print succ participantID: {} setupID: {}".format(succParticipantId, succSetupId))
+    userStudy.initializeRest()
     if userStudy.ready:
        mainloop(userStudy)

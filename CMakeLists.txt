@@ -4,6 +4,10 @@ find_package(catkin REQUIRED
         roscpp
         std_msgs
         sensor_msgs
+        geometry_msgs
+        tf2
+        tf2_ros
+        tf2_geometry_msgs
         message_generation
         )
 
@@ -66,6 +70,6 @@ target_link_libraries( ${PROJECT_NAME}
 catkin_install_python(PROGRAMS scripts/keyboardController.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )
-catkin_install_python(PROGRAMS scripts/UserStudy.py
+catkin_install_python(PROGRAMS scripts/ControlUserStudy.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )
