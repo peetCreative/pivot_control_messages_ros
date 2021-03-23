@@ -273,6 +273,7 @@ class UserStudy:
                 topic, TFMessage, self.WriteToROSBag, topic)
 
         if self.setupIdStr == vr_robotarm:
+            topic = "pivot_error"
             self.pivotErrorSub = rospy.Subscriber(
                 topic, PivotError, self.WriteToROSBag, topic)
 
