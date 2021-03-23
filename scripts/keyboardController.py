@@ -62,6 +62,7 @@ class KeyboardDOFController:
         # focus distance in 10 cm
         self.focus_distance = 0.10
         self.add_trans_pitch = False
+        self.add_roll_correction = False
 
     def update_boundaries(self, boundaries):
         self.boundaries = boundaries
@@ -102,6 +103,7 @@ class KeyboardDOFController:
         # TODO: I don't understand this anymore
         step_pitch = self.rot_factor * self.step_distance# / axis_length
         step_yaw = self.rot_factor * self.step_distance# / axis_length
+        step_roll = self.rot_factor * self.step_distance# / axis_length
         # apply step direction
         if self.direction == "up":
             pose.pitch = pose.pitch + step_pitch
@@ -111,6 +113,10 @@ class KeyboardDOFController:
             pose.yaw = pose.yaw + step_yaw
         if self.direction == "right":
             pose.yaw = pose.yaw - step_yaw
+        if self.direction == "rot_left":
+            pose.roll = pose.roll + step_roll
+        if self.direction == "rot_right":
+            pose.roll = pose.roll - step_roll
         if self.direction == "in":
             # TODO: with pitching more distance will be covered
             pose.trans_z = pose.trans_z + self.step_distance
@@ -136,17 +142,18 @@ class KeyboardDOFController:
                     self.focus_distance
                 ))
                 pose.pitch = pose.pitch - (trans_pitch_new - trans_pitch)
-            tilt_pitch = pose.pitch - (
-                self.camera_tilt if self.add_camera_tilt else 0)
-            vec1 = np.array([0, math.cos(tilt_pitch), math.sin(tilt_pitch)])
-            vec2 = np.array([math.sin(pose.yaw) * math.sin(tilt_pitch),
-                             math.cos(tilt_pitch),
-                             math.cos(pose.yaw) * math.sin(tilt_pitch)])
-            sign_pitch = 1 if pose.pitch > 0 else -1
-            sign_yaw = 1 if pose.yaw < 0 else -1
-            z_angle = np.dot(vec1, vec2)
-            if z_angle < 1.0:
-                pose.roll = sign_yaw * sign_pitch * math.acos(z_angle)
+            if self.add_roll_correction:
+                tilt_pitch = pose.pitch - (
+                    self.camera_tilt if self.add_camera_tilt else 0)
+                vec1 = np.array([0, math.cos(tilt_pitch), math.sin(tilt_pitch)])
+                vec2 = np.array([math.sin(pose.yaw) * math.sin(tilt_pitch),
+                                 math.cos(tilt_pitch),
+                                 math.cos(pose.yaw) * math.sin(tilt_pitch)])
+                sign_pitch = 1 if pose.pitch > 0 else -1
+                sign_yaw = 1 if pose.yaw < 0 else -1
+                z_angle = np.dot(vec1, vec2)
+                if z_angle < 1.0:
+                    pose.roll = sign_yaw * sign_pitch * math.acos(z_angle)
             self.pose_publisher.publish(pose)
 
     def display(self):
@@ -218,13 +225,19 @@ class KeyboardDOFController:
                 self.direction = "in"
                 move = True
             if keys[K_y]:
-                self.add_camera_tilt = True
-                self.direction = ""
+                self.direction = "rot_left"
                 move = True
             if keys[K_x]:
-                self.add_camera_tilt = False
-                self.direction = ""
+                self.direction = "rot_right"
                 move = True
+            # if keys[K_]:
+            #     self.add_camera_tilt = True
+            #     self.direction = ""
+            #     move = True
+            # if keys[K_n]:
+            #     self.add_camera_tilt = False
+            #     self.direction = ""
+            #     move = True
             if move:
                 self.move()
                 move_old = True
