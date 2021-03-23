@@ -7,7 +7,7 @@ from datetime import datetime
 from pivot_control_messages_ros.srv import GetInt, SetInt, SetPose
 from pivot_control_messages_ros.msg import LaparoscopeDOFPose,\
     LaparoscopeDOFBoundaries, PivotError
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CameraInfo
 from tf2_msgs.msg import TFMessage
 from std_srvs.srv import Trigger
 
@@ -50,6 +50,7 @@ class UserStudy:
         self.tfSub = None
         self.pivotErrorSub = None
         self.imageSub = None
+        self.cameraInfoSub = None
         topic = 'display/quit'
         rospy.wait_for_service(topic)
         self.quitService = rospy.ServiceProxy(topic, Trigger)
@@ -241,6 +242,8 @@ class UserStudy:
 
             topic = "image_raw"
             rospy.wait_for_message(topic, Image, timeout)
+            topic = "camera_info"
+            rospy.wait_for_message(topic, CameraInfo, timeout)
         except (rospy.ROSException) as err:
             rospy.logerr("ROSException: {0}".format(err))
             return False
@@ -272,6 +275,9 @@ class UserStudy:
         topic = "image_raw"
         self.imageSub = rospy.Subscriber(
             topic, Image, self.WriteToROSBag, topic)
+        topic = "camera_info"
+        self.cameraInfoSub = rospy.Subscriber(
+            topic, CameraInfo, self.WriteToROSBag, topic)
 
     def UnsubscribeTopics(self):
         if self.targetDOFPoseSub is not None:
@@ -286,6 +292,8 @@ class UserStudy:
             self.pivotErrorSub.unregister()
         if self.imageSub is not None:
             self.imageSub.unregister()
+        if self.cameraInfoSub is not None:
+            self.cameraInfoSub.unregister()
 
     def StopRosbag(self):
         self.rosbag_lock.acquire()
