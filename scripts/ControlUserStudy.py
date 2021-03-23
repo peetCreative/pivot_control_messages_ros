@@ -325,16 +325,17 @@ class UserStudy:
 
 
 def mainloop(userStudy):
-    rospy.loginfo("q:  Quit")
+    print("q:  Quit")
     if userStudy.enableForceNewPose:
-        rospy.loginfo("j:  Go to previous Pose")
-        rospy.loginfo("k:  Go to next Pose")
-        rospy.loginfo("pX: Go to Xth Pose")
+        print("j:  Go to previous Pose")
+        print("k:  Go to next Pose")
+        print("pX: Go to Xth Pose")
+        print("i:  Print all available Poses")
     if userStudy.enableSetSimulationDelay:
-        rospy.loginfo("d:  Decrease simulation delay")
-        rospy.loginfo("f:  Increase simulation delay")
-        rospy.loginfo("eX: Set simulation delay to X ms")
-    rospy.loginfo("r:  Record than press enter for start and stop")
+        print("d:  Decrease simulation delay")
+        print("f:  Increase simulation delay")
+        print("eX: Set simulation delay to X ms")
+    print("r:  Record than press enter for start and stop")
     recording = False
     while not rospy.is_shutdown():
         command = input('>')
@@ -357,21 +358,20 @@ def mainloop(userStudy):
 
         # set previous Pose
         if command == 'j' and userStudy.startPosesDofs is not None:
-            rospy.loginfo('previous start pose')
+            print('previous pose')
             succ = userStudy.SetStartPoseRel(-1)
             if not succ:
                 rospy.logwarn("could not set new pose")
             continue
         # set next Pose
         if command == 'k' and userStudy.startPosesDofs is not None:
-            rospy.loginfo ('Next start pose')
+            print('Next pose')
             succ = userStudy.SetStartPoseRel(1)
             if not succ:
                 rospy.logwarn("could not set new pose")
             continue
         # Go To specific Pose
         if command.startswith('p') and userStudy.startPosesDofs is not None:
-            rospy.loginfo("Go to start pose")
             poseNum = None
             try:
                 poseNum = int(command[1:])
@@ -381,22 +381,24 @@ def mainloop(userStudy):
             succ = userStudy.SetStartPoseAbs(poseNum-1)
             if not succ:
                 rospy.logwarn("Could not set new pose")
+            else:
+                print("Go to {}".format(userStudy.curStartPoseId))
             continue
         if userStudy.enableSetSimulationDelay:
             if command == 'd':
-                rospy.loginfo('Decrease simulation delay')
+                print('Decrease simulation delay')
                 succ = userStudy.SetSimulationDelayRel(-delayStep)
                 if not succ:
                     rospy.logwarn("Could not decrease delay")
                 continue
             if command == 'f':
-                rospy.loginfo('Increase simulation delay')
+                print('Increase simulation delay')
                 succ = userStudy.SetSimulationDelayRel(delayStep)
                 if not succ:
                     rospy.logwarn("could not increase delay")
                 continue
             if command.startswith('e'):
-                rospy.loginfo('set simulation delay')
+                print('set simulation delay')
                 delay = None
                 try:
                     delay = int(command[1:])
@@ -412,10 +414,10 @@ def mainloop(userStudy):
                 continue
         # Record Rosbag
         if command == 'r':
-            rospy.loginfo("Press Enter to stop")
+            print("Press Enter to stop")
             recording = userStudy.ToggleRosbag()
             continue
-        rospy.logwarn("could not parse command")
+        print("could not parse command")
 
 if __name__ == '__main__':
     userStudy = UserStudy()
