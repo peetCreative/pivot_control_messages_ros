@@ -86,6 +86,13 @@ class UserStudy:
             rospy.set_param("setup_id", self.setupIdStr)
         return valid
 
+    def printPoses(self):
+        i = 0
+        for dofPose in self.startPosesDofs:
+            i = i + 1
+            print("{}: {}".format(i, DofPoseToStr(dofPose)))
+
+
     def initializeRest(self):
         if not self.ready:
             return
@@ -102,10 +109,7 @@ class UserStudy:
             if dofPosesYamlUrl != '':
                 with open(dofPosesYamlUrl) as f:
                     self.startPosesDofs = yaml.load(f, Loader=yaml.FullLoader)
-            i = 0
-            for dofPose in self.startPosesDofs:
-                i = i + 1
-                print("{}: {}".format(i, DofPoseToStr(dofPose)))
+            self.printPoses()
             rospy.wait_for_service('force_set_dof_pose')
             self.forceNewPoseService = rospy.ServiceProxy('force_set_dof_pose', SetPose)
             self.curStartPoseId = "NoPose"
@@ -401,6 +405,9 @@ def mainloop(userStudy):
                 succ = userStudy.SetSimulationDelayAbs(delay)
                 if not succ:
                     rospy.logwarn("could not set new simulation delay")
+                continue
+            if command == 'i':
+                userStudy.printPoses()
                 continue
         # Record Rosbag
         if command == 'r':
