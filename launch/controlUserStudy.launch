@@ -5,14 +5,12 @@
     <arg unless="$(arg tmux)" name="launch_prefix" value=""/>
     <arg if="$(arg tmux)" name="launch_prefix" value="$(find pivot_control_messages_ros)/scripts/run_tmux.sh"/>
     <arg name="dof_poses_yaml" default="$(find pivot_control_messages_ros)/config/dof_poses.yaml"/>
-    <arg name="rosbag_location_folder" default="/tmp" doc="Location to put recordings to"/>
 
     <node name="user_study" pkg="pivot_control_messages_ros" type="ControlUserStudy.py"
            output="screen" required ="false"
            launch-prefix="$(arg launch_prefix)">
         <param name="participant_id" value="$(arg participant_id)"/>
         <param name="setup_id" value="$(arg setup_id)"/>
-        <param name="rosbag_location_folder" value="$(arg rosbag_location_folder)"/>
         <param name="dof_poses_yaml" value="$(arg dof_poses_yaml)"/>
         <remap from="force_set_dof_pose" to="/laparoscope/pivot_controller/force_set_dof_pose"/>
         <remap from="get_simulation_delay" to="/laparoscope/joint_controller/get_simulation_delay"/>
