@@ -3,6 +3,7 @@ project(pivot_control_messages_ros)
 find_package(catkin REQUIRED
         roscpp
         std_msgs
+        std_srvs
         sensor_msgs
         geometry_msgs
         tf2

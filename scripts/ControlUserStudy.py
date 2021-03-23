@@ -9,7 +9,7 @@ from pivot_control_messages_ros.msg import LaparoscopeDOFPose,\
     LaparoscopeDOFBoundaries, PivotError
 from sensor_msgs.msg import Image
 from tf2_msgs.msg import TFMessage
-import tf2_ros
+from std_srvs.srv import Trigger
 
 delayStep = 10
 delayMax = 2000
@@ -50,6 +50,9 @@ class UserStudy:
         self.tfSub = None
         self.pivotErrorSub = None
         self.imageSub = None
+        topic = 'display/quit'
+        rospy.wait_for_service(topic)
+        self.quitService = rospy.ServiceProxy(topic, Trigger)
 
     def initializeParticipantId(self):
         if self.participantIdStr == "":
@@ -326,6 +329,12 @@ def mainloop(userStudy):
         if command == 'q':
             userStudy.UnsubscribeTopics()
             userStudy.StopRosbag()
+            try:
+                resp = userStudy.quitService()
+                if not resp.success:
+                    rospy.logwarn('Quit Display Failed')
+            except Exception as e:
+                print("Display allready quit")
             rospy.loginfo('Quit')
             break
 

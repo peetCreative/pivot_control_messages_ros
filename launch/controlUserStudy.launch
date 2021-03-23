@@ -21,5 +21,6 @@
         <remap from="pivot_error" to="/laparoscope/pivot_controller/current/pivot_error"/>
         <remap from="image_raw" to="/laparoscope/camera/left/image_raw"/>
         <remap from="camera_info" to="/laparoscope/camera/left/camera_info"/>
+        <remap from="display/quit" to="/laparoscope/display/quit"/>
     </node>
 </launch>
