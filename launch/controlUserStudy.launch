@@ -15,7 +15,7 @@
         <remap from="force_set_dof_pose" to="/laparoscope/pivot_controller/force_set_dof_pose"/>
         <remap from="get_simulation_delay" to="/laparoscope/joint_controller/get_simulation_delay"/>
         <remap from="set_simulation_delay" to="/laparoscope/joint_controller/set_simulation_delay"/>
-        <remap from="target/DOFPose" to="/laparoscope/joint_controller/target/laparoscope_dof_pose"/>
+        <remap from="target/DOFPose" to="/laparoscope/pivot_controller/target/laparoscope_dof_pose"/>
         <remap from="DOFBoundaries" to="/laparoscope/pivot_controller/laparoscope_dof_boundaries"/>
         <remap from="current/DOFPose" to="/laparoscope/pivot_controller/current/laparoscope_dof_pose"/>
         <remap from="pivot_error" to="/laparoscope/pivot_controller/current/pivot_error"/>
