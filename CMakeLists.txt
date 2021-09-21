@@ -23,6 +23,8 @@ add_message_files(
 add_service_files(
         FILES
         SetInt.srv
+        SetFloat.srv
+        SetJointSpacePose.srv
         GetInt.srv
         SetPose.srv
 )
