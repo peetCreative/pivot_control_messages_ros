@@ -6,7 +6,7 @@ from threading import Lock
 from datetime import datetime
 from pivot_control_messages_ros.srv import GetInt, SetInt, SetPose
 from pivot_control_messages_ros.msg import LaparoscopeDOFPose,\
-    LaparoscopeDOFBoundaries, PivotError
+    LaparoscopeDOFBoundaries, PivotError, FrankaError
 from sensor_msgs.msg import Image, CameraInfo
 from tf2_msgs.msg import TFMessage
 from std_srvs.srv import Trigger
@@ -49,6 +49,7 @@ class UserStudy:
         self.currentDOFPoseSub = None
         self.tfSub = None
         self.pivotErrorSub = None
+        self.frankaErrorSub = None
         self.imageSub = None
         self.cameraInfoSub = None
         topic = 'display/quit'
@@ -276,6 +277,9 @@ class UserStudy:
             topic = "pivot_error"
             self.pivotErrorSub = rospy.Subscriber(
                 topic, PivotError, self.WriteToROSBag, topic)
+            topic = "franka_error"
+            self.frankaErrorSub = rospy.Subscriber(
+                topic, FrankaError, self.WriteToROSBag, topic)
 
         topic = "image_raw"
         self.imageSub = rospy.Subscriber(
@@ -295,6 +299,8 @@ class UserStudy:
             self.tfSub.unregister()
         if self.pivotErrorSub is not None:
             self.pivotErrorSub.unregister()
+        if self.frankaErrorSub is not None:
+            self.frankaErrorSub.unregister()
         if self.imageSub is not None:
             self.imageSub.unregister()
         if self.cameraInfoSub is not None:
