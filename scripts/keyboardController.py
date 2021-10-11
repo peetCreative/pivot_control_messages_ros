@@ -3,7 +3,7 @@ import rospy
 import pygame
 import math
 import numpy as np
-from pygame.locals import K_ESCAPE, K_w, K_s, K_a, K_d, K_q, K_e, K_y, K_x
+from pygame.locals import K_ESCAPE, K_w, K_s, K_a, K_d, K_q, K_e, K_y, K_x, K_0
 import argparse
 from pivot_control_messages_ros.msg import LaparoscopeDOFPose
 from pivot_control_messages_ros.msg import LaparoscopeDOFBoundaries
@@ -105,6 +105,11 @@ class KeyboardDOFController:
         step_yaw = self.rot_factor * self.step_distance# / axis_length
         step_roll = self.rot_factor * self.step_distance# / axis_length
         # apply step direction
+        if self.direction == "0":
+            pose.pitch = 0
+            pose.yaw = 0
+            pose.trans_z = 0
+            pose.roll = 0
         if self.direction == "up":
             pose.pitch = pose.pitch + step_pitch
         if self.direction == "down":
@@ -206,6 +211,9 @@ class KeyboardDOFController:
                 done = True
             if keys[K_ESCAPE]:
                 done = True
+            if keys[K_0]:
+                self.direction = "0"
+                move = True
             if keys[K_w]:
                 self.direction = "up"
                 move = True
