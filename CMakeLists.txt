@@ -74,6 +74,3 @@ target_link_libraries( ${PROJECT_NAME}
 catkin_install_python(PROGRAMS scripts/keyboardController.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )
-catkin_install_python(PROGRAMS scripts/ControlUserStudy.py
-        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-        )
