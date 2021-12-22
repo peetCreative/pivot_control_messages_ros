@@ -18,6 +18,8 @@ add_message_files(
         LaparoscopeDOFBoundaries.msg
         PivotError.msg
         FrankaError.msg
+        PivotPose.msg
+        PivotTrajectory.msg
 )
 
 add_service_files(
