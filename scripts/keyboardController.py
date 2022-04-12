@@ -190,6 +190,12 @@ class KeyboardDOFController:
         self.pose_publisher.publish(pose)
 
     def display(self):
+        mantext = self.font.render("a: left, d: right, w: up, s: down, e: in, q: out, 0:reset, ESC: quit", True, (255, 255, 255),
+                                   (159, 182, 205))
+        mantextRect = mantext.get_rect()
+        mantextRect.centerx = self.screen.get_rect().centerx
+        mantextRect.centery = self.screen.get_rect().centery - 40
+
         dirtext = self.font.render(self.direction, True, (255, 255, 255),
                                    (159, 182, 205))
         dirtextRect = dirtext.get_rect()
@@ -221,6 +227,7 @@ class KeyboardDOFController:
         bound1textRect.centerx = self.screen.get_rect().centerx
         bound1textRect.centery = self.screen.get_rect().centery + 60
 
+        self.screen.blit(mantext, mantextRect)
         self.screen.blit(dirtext, dirtextRect)
         self.screen.blit(posetext, posetextRect)
         self.screen.blit(boundtext, boundtextRect)
